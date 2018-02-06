@@ -9,6 +9,8 @@ import android.support.v7.widget.RecyclerView;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hariofspades.dagger2advanced.adapter.RandomUserAdapter;
+import com.hariofspades.dagger2advanced.components.DaggerRandomUserComponent;
+import com.hariofspades.dagger2advanced.components.RandomUserComponent;
 import com.hariofspades.dagger2advanced.interfaces.RandomUsersApi;
 import com.hariofspades.dagger2advanced.model.RandomUsers;
 
@@ -23,7 +25,7 @@ import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
 
-    Retrofit retrofit;
+    RandomUsersApi randomUsersApi;
     RecyclerView recyclerView;
     RandomUserAdapter mAdapter;
 
@@ -33,31 +35,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initViews();
 
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        Gson gson = gsonBuilder.create();
 
-        Timber.plant(new Timber.DebugTree());
 
-        HttpLoggingInterceptor httpLoggingInterceptor = new
-                HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
-            @Override
-            public void log(@NonNull String message) {
-                Timber.i(message);
-            }
-        });
+        RandomUserComponent daggerRandomUserComponent = DaggerRandomUserComponent.builder().build();
 
-        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        randomUsersApi = daggerRandomUserComponent.getRandomUserService();
 
-        OkHttpClient okHttpClient = new OkHttpClient()
-                .newBuilder()
-                .addInterceptor(httpLoggingInterceptor)
-                .build();
-
-        retrofit = new Retrofit.Builder()
-                .client(okHttpClient)
-                .baseUrl("https://randomuser.me/")
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
 
         populateUsers();
 
@@ -88,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public RandomUsersApi getRandomUserService(){
-        return retrofit.create(RandomUsersApi.class);
+        return randomUsersApi;
     }
 
 
