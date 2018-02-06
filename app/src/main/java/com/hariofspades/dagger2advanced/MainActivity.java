@@ -11,6 +11,8 @@ import com.hariofspades.dagger2advanced.components.DaggerRandomUserComponent;
 import com.hariofspades.dagger2advanced.components.RandomUserComponent;
 import com.hariofspades.dagger2advanced.interfaces.RandomUsersApi;
 import com.hariofspades.dagger2advanced.model.RandomUsers;
+import com.hariofspades.dagger2advanced.modules.ContextModule;
+import com.squareup.picasso.Picasso;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -20,6 +22,7 @@ import timber.log.Timber;
 public class MainActivity extends AppCompatActivity {
 
     RandomUsersApi randomUsersApi;
+    Picasso picasso;
     RecyclerView recyclerView;
     RandomUserAdapter mAdapter;
 
@@ -30,8 +33,11 @@ public class MainActivity extends AppCompatActivity {
         initViews();
 
         RandomUserComponent daggerRandomUserComponent =
-                DaggerRandomUserComponent.builder().build();
+                DaggerRandomUserComponent.builder()
+                        .contextModule(new ContextModule(this))
+                        .build();
         randomUsersApi = daggerRandomUserComponent.getRandomUserService();
+        picasso = daggerRandomUserComponent.getPicasso();
 
         populateUsers();
 
@@ -48,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<RandomUsers> call, @NonNull Response<RandomUsers> response) {
                 if(response.isSuccessful()) {
-                    mAdapter = new RandomUserAdapter(MainActivity.this);
+                    mAdapter = new RandomUserAdapter(picasso);
                     mAdapter.setItems(response.body().getResults());
                     recyclerView.setAdapter(mAdapter);
                 }
@@ -56,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<RandomUsers> call, Throwable t) {
-                Timber.i(t.getMessage());
+                Timber.i(t.getLocalizedMessage());
             }
         });
     }
