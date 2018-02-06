@@ -2,9 +2,10 @@ package com.hariofspades.dagger2advanced.modules;
 
 import android.support.annotation.NonNull;
 
+import com.hariofspades.dagger2advanced.interfaces.RandomUserSingletonScope;
+
 import dagger.Module;
 import dagger.Provides;
-import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import timber.log.Timber;
@@ -16,6 +17,7 @@ import timber.log.Timber;
 @Module
 public class OkHttpClientModule {
 
+    @RandomUserSingletonScope
     @Provides
     public OkHttpClient okHttpClient(HttpLoggingInterceptor httpLoggingInterceptor){
         return new OkHttpClient()
@@ -36,4 +38,6 @@ public class OkHttpClientModule {
         httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         return httpLoggingInterceptor;
     }
+
+
 }
